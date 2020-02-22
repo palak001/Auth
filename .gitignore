@@ -1,0 +1,3 @@
+/server/node_modules
+#contain connection string of the database (db/config/keys.js)
+/server/db/config/keys.js
