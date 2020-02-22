@@ -33,7 +33,7 @@ router.post('/signup', (req, res, next) => {
                 }
                 else{
                     //save the user with hashed password
-                    bcrypt.hash(req.body.password, 12)
+                    bcrypt.hash(req.body.password.trim(), 12)
                     .then(hashedPassword => {
                         // res.json({hashedPassword});
                         User.create({
@@ -41,8 +41,6 @@ router.post('/signup', (req, res, next) => {
                             password: hashedPassword
                         })
                         .then(insertedUser => {
-                            //removes password property from object
-                            delete insertedUser.password;//not working 
                             res.json(insertedUser);
                         })
                         .catch(err => next(err));
