@@ -4,7 +4,11 @@
             {{ errorMessage }}
         </div>
         <h1>Signup</h1>
-        <form @submit.prevent="signup">
+        <div v-if="signingup">
+          <img src="../assets/loading.svg" alt="loading gif"
+            style = "margin:100px 500px"/>
+        </div>
+        <form @submit.prevent="signup" v-if="!signingup">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input
@@ -59,6 +63,8 @@
 <script>
 import Joi from 'joi';
 
+const signupUrl = 'http://localhost:3000/auth/signup';
+
 const schema = Joi.object().keys({
   username: Joi.string().regex(/(^[a-zA-Z0-9_]*$)/).min(2).max(30)
     .required(),
@@ -68,6 +74,7 @@ const schema = Joi.object().keys({
 
 export default {
   data: () => ({
+    signingup: false,
     errorMessage: '',
     user: {
       username: '',
@@ -75,6 +82,7 @@ export default {
       confirmPassword: '',
     },
   }),
+  // it runs whenever data changes
   watch: {
     user: {
       handler() {
@@ -87,7 +95,38 @@ export default {
     signup() {
       this.errorMessage = '';
       if (this.validUser()) {
-        console.log('User is valid...');
+        // console.log('User is valid...');
+        // console.log(this.user);
+        const body = {
+          username: this.user.username,
+          password: this.user.password,
+        };
+        this.signingup = true;
+        fetch(signupUrl, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            'content-type': 'application/json',
+          },
+        }).then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+
+          return response.json().then((error) => {
+            throw new Error(error.message);
+          });
+        }).then(() => {
+          setTimeout(() => {
+            this.signingup = false;
+            this.$router.push('/login');
+          }, 1000);
+        }).catch((error) => {
+          setTimeout(() => {
+            this.signingup = false;
+            this.errorMessage = error.message;
+          }, 1000);
+        });
       }
     },
     validUser() {

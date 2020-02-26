@@ -29,7 +29,8 @@ router.post('/signup', (req, res, next) => {
                 if(user) {
                     //respond with error
                     const err = new Error('Username Already taken');
-                    next(err);
+                    res.status(409);
+                     next(err);
                 }
                 else{
                     //save the user with hashed password
@@ -41,7 +42,10 @@ router.post('/signup', (req, res, next) => {
                             password: hashedPassword
                         })
                         .then(insertedUser => {
-                            res.json(insertedUser);
+                            res.json({
+                                _id: insertedUser._id,
+                                username: insertedUser.username
+                            });
                         })
                         .catch(err => next(err));
                     });
@@ -49,6 +53,7 @@ router.post('/signup', (req, res, next) => {
             });
     }
     else{
+        res.status(406);
         next(result.error);
     }
 });
