@@ -1,6 +1,9 @@
 const express = require('express');
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+require('dotenv').config();
 
 const router = express.Router();
 const User = require('../db/models/user');
@@ -56,6 +59,53 @@ router.post('/signup', (req, res, next) => {
         res.status(406);
         next(result.error);
     }
+});
+
+function respondError(res, next){
+    res.status(422);
+    const error = new Error('Unable to login.');
+    next(error);
+}
+
+router.post('/login', (req, res, next) => {
+    const result = Joi.validate(req.body, schema);
+    if(result.error === null) {
+        User.findOne({
+            username: req.body.username,
+        }).then(user => {
+            if(user){
+                 bcrypt.compare(req.body.password, user.password)
+                 .then(result => {
+                     if(result) {
+                         //valid user
+                         const payload = {
+                             _id: user._id,
+                            username: user.username
+                         };
+                         jwt.sign(payload, process.env.Token_Secret,{expiresIn:'1d'},(err,token)=>{
+                                if(err){
+                                    respondError(res, next);
+                                }
+                                else{
+                                    res.json({
+                                        token 
+                                    });
+                                }
+                            });
+                     }
+                     else{
+                        respondError(res, next);
+                     }
+                 });
+            }
+            else{
+                respondError(res, next);
+            }
+        })
+    }else{
+        respondError(res, next);
+    }
+
 });
 
 module.exports = router;

@@ -3,3 +3,5 @@
 #contain connection string of the database (db/config/keys.js)
 /server/db/config/keys.js
 /server/npm-debug.log
+# dotenv environment variables file
+.env
