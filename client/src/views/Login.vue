@@ -4,7 +4,11 @@
     <div v-if="errorMessage" class="alert alert-danger" role="alert">
       {{errorMessage}}
     </div>
-    <form @submit.prevent="login">
+    <div v-if="logging">
+      <img src="../assets/loading.svg" alt="loading gif"
+        style = "margin:100px 500px" />
+    </div>
+    <form @submit.prevent="login" v-if="!logging">
        <div class="form-group">
           <label for="username">Username</label>
           <input
@@ -37,6 +41,8 @@
 <script>
 import Joi from 'joi';
 
+const loginUrl = 'http://localhost:3000/auth/login';
+
 // schema for input validation
 const schema = Joi.object().keys({
   username: Joi.string().regex(/(^[a-zA-Z0-9_]*$)/).min(2).max(30)
@@ -46,6 +52,7 @@ const schema = Joi.object().keys({
 
 export default {
   data: () => ({
+    logging: false,
     errorMessage: '',
     user: {
       username: '',
@@ -62,9 +69,38 @@ export default {
   },
   methods: {
     login() {
-    //   console.log(this.user);
       if (this.validUser()) {
+        const body = {
+          username: this.user.username,
+          password: this.user.password,
+        };
+
         console.log('Logging in...');
+        this.logging = true;
+        fetch(loginUrl, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            'content-type': 'application/json',
+          },
+        }).then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          return response.json().then((error) => {
+            throw new Error(error.message);
+          });
+        }).then(() => {
+          setTimeout(() => {
+            this.logging = false;
+            this.$router.push('/signup');
+          }, 1000);
+        }).catch((error) => {
+          setTimeout(() => {
+            this.logging = false;
+            this.errorMessage = error.message;
+          }, 1000);
+        });
       }
     },
     validUser() {
@@ -72,7 +108,11 @@ export default {
       if (result.error === null) {
         return true;
       }
-      this.errorMessage = 'Invalid Credentials.';
+      if (result.error.message.includes('username')) {
+        this.errorMessage = 'Invalid username.';
+      } else {
+        this.errorMessage = 'Invalid Password. ';
+      }
       return false;
     },
   },
