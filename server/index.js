@@ -14,6 +14,7 @@ app.use(cors({
 app.use(express.json());
 
 //db connection
+
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect(require('./db/config/keys').mongoURI, {useNewUrlParser: true, useUnifiedTopology: true,})

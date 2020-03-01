@@ -15,6 +15,24 @@ const schema = Joi.object().keys({
     password: Joi.string().min(6).trim().required()
 })
 
+//create and responding back with token
+const createTokenSendResponse = (user, res, next) => {
+    const payload = {
+        _id: user._id,
+       username: user.username
+    };
+    jwt.sign(payload, process.env.Token_Secret,{expiresIn:'1d'},(err,token)=>{
+           if(err){
+               respondError(res, next);
+           }
+           else{
+               res.json({
+                   token 
+               });
+           }
+       });
+}
+
 // get /auth
 router.get('/', (req, res) => {
     res.json({
@@ -45,10 +63,11 @@ router.post('/signup', (req, res, next) => {
                             password: hashedPassword
                         })
                         .then(insertedUser => {
-                            res.json({
-                                _id: insertedUser._id,
-                                username: insertedUser.username
-                            });
+                            // res.json({
+                            //     _id: insertedUser._id,
+                            //     username: insertedUser.username
+                            // });
+                            createTokenSendResponse(insertedUser, res, next);
                         })
                         .catch(err => next(err));
                     });
@@ -78,20 +97,7 @@ router.post('/login', (req, res, next) => {
                  .then(result => {
                      if(result) {
                          //valid user
-                         const payload = {
-                             _id: user._id,
-                            username: user.username
-                         };
-                         jwt.sign(payload, process.env.Token_Secret,{expiresIn:'1d'},(err,token)=>{
-                                if(err){
-                                    respondError(res, next);
-                                }
-                                else{
-                                    res.json({
-                                        token 
-                                    });
-                                }
-                            });
+                        createTokenSendResponse(user, res, next);
                      }
                      else{
                         respondError(res, next);
