@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1>Login Page</h1>
+    <h1>Login </h1>
     <div v-if="errorMessage" class="alert alert-danger" role="alert">
       {{errorMessage}}
     </div>
@@ -90,10 +90,12 @@ export default {
           return response.json().then((error) => {
             throw new Error(error.message);
           });
-        }).then(() => {
+        }).then((result) => {
+          console.log(result);
+          localStorage.token = result.token;
           setTimeout(() => {
             this.logging = false;
-            this.$router.push('/signup');
+            this.$router.push('/dashboard');
           }, 1000);
         }).catch((error) => {
           setTimeout(() => {

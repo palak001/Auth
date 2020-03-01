@@ -7,9 +7,13 @@
       <p>Enjoying!</p>
       <p class="lead">
         <router-link
-         class="btn btn-primary btn-lg" 
-         :to="{name:'signup'}" 
+         class="btn btn-primary btn-lg"
+         :to="{name:'signup'}"
          role="button">Sign Up</router-link>
+        <router-link
+         class="btn btn-primary btn-lg"
+         :to="{name:'login'}"
+         role="button" style = "margin-left: 20px">login</router-link>
       </p>
     </div>
   </div>
