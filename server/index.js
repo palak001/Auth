@@ -4,15 +4,18 @@ const cors = require('cors');
 
 const app = express();
 
+const middleware = require('./auth/middleware');
+
 const auth = require('./auth/index');
 
 app.use(morgan('dev'));
 app.use(cors({
     origin: 'http://localhost:8080'
-}))
+}));
 //built in express bodyparser
 app.use(express.json());
-
+//for checking if token is present on every incoming req 
+app.use(middleware.checkTokenSetUser);
 //db connection
 
 const mongoose = require('mongoose');
@@ -23,7 +26,8 @@ mongoose.connect(require('./db/config/keys').mongoURI, {useNewUrlParser: true, u
 
 app.get('/', (req, res) => {
     res.json({
-        message:'Welcome here!'
+        message:'Welcome here!',
+        user: req.user
     });
 });
 
