@@ -8,4 +8,4 @@ d) jsonwebtoken - For Token generation
 a) Vue.js
 
 
-![Flow Chart](AuthFlowchart.svg)
+![Flow Chart](AuthFlowChart.svg)
