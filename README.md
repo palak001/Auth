@@ -6,3 +6,4 @@ c) bcrypt - Hashing passwords
 ## 2. Signup Frontend
 a) Vue.js
 
+![Flow Chart](flowchart.svg)
