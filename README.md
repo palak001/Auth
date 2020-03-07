@@ -7,5 +7,6 @@ d) jsonwebtoken - For Token generation
 ## 2. Signup/Login Frontend
 a) Vue.js
 
+# Auth Flow:
 
 ![Flow Chart](AuthFlowChart.svg)
