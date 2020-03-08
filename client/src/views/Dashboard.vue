@@ -11,6 +11,9 @@
       <img src="../assets/loading.svg" alt="loading gif"
         style = "margin:100px 500px"/>
     </div>
+    <div v-if="errorMessage" class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+    </div>
     <form @submit.prevent="post" v-if="showForm && !posting">
       <div class="form-group">
         <label for="title">Title</label>
@@ -22,7 +25,7 @@
         placeholder="Enter a descriptive title for your Note"
         aria-describedby="titleHelp" required>
         <h5 id="titleHelp" class="form-text text-muted">
-          Enter a descriptive title for your Note
+          Enter a descriptive title for your Note(max 100)
         </h5>
       </div>
       <div class="form-group">
@@ -53,6 +56,14 @@ export default {
       description: '',
     },
   }),
+  watch: {
+    note: {
+      handler() {
+        this.errorMessage = '';
+      },
+      deep: true,
+    },
+  },
   mounted() {
     fetch(API_URL, {
       headers: {
@@ -75,8 +86,9 @@ export default {
     },
     post() {
       // console.log(this.note);
+      this.errorMessage = '';
       this.posting = true;
-      fetch(`${API_URL}api/v1/notes`, {
+      fetch(`${API_URL}api/v10/notes`, {
         method: 'POST',
         body: JSON.stringify(this.note),
         headers: {
@@ -101,7 +113,13 @@ export default {
           };
         }, 1000);
       }).catch((error) => {
-        this.errorMessage = error.message;
+        setTimeout(() => {
+          this.posting = false;
+          this.errorMessage = error.message;
+          if (this.errorMessage.includes('title')) {
+            this.errorMessage = 'Title is way too long!';
+          }
+        }, 1000);
       });
     },
   },

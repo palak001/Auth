@@ -143,7 +143,7 @@ export default {
 
       this.errorMessage = result.error;
       if (result.error.message.includes('username')) {
-        // this.errorMessage = 'Username is invalid.';
+        this.errorMessage = 'Username is invalid.';
       } else {
         this.errorMessage = 'Password is invalid.';
       }
