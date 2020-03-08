@@ -5,7 +5,8 @@ b) joi - Data validator\
 c) bcrypt - Hashing passwords\
 d) jsonwebtoken - For Token generation
 ## 2. Signup/Login Frontend
-a) Vue.js
+a) Vue.js\
+b) Bootstrap
 
 # Routes
 ## Server
