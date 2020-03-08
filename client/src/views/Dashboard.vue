@@ -5,8 +5,6 @@
     <h4 v-if="user">Hello, {{ user.username }}</h4>
     <button @click="logout()" class="btn btn-primary" style="margin:10px 0px">Logout</button>
     <br />
-    <button @click="showForm=!showForm" class="btn btn-primary" style="margin:10px 0px">
-      Toggle the form </button>
     <div v-if="posting">
       <img src="../assets/loading.svg" alt="loading gif"
         style = "margin:100px 500px"/>
@@ -14,7 +12,7 @@
     <div v-if="errorMessage" class="alert alert-danger" role="alert">
         {{ errorMessage }}
     </div>
-    <form @submit.prevent="post" v-if="showForm && !posting">
+    <form @submit.prevent="addNotes" v-if="!posting">
       <div class="form-group">
         <label for="title">Title</label>
         <input
@@ -40,6 +38,21 @@
       </div>
       <button type="submit" class="btn btn-primary">Post</button>
     </form>
+    <h3 style="margin-top:30px">Notes</h3>
+    <section class="row mt-3">
+      <br />
+      <div class="col-4"
+        v-for="note in this.notes"
+        :key="note._id">
+        <div class="card border-info mb-3"
+          style="max-width: 20rem;">
+          <div class="card-header"><h3>{{note.title}}</h3></div>
+          <div class="card-body">
+            <h5><p class="card-text">{{note.description}}</p></h5>
+          </div>
+        </div>
+      </div>
+    </section>
   </section>
 </template>
 
@@ -48,13 +61,13 @@ const API_URL = 'http://localhost:3000/';
 export default {
   data: () => ({
     user: null,
-    showForm: false,
     errorMessage: '',
     posting: false,
     note: {
       title: '',
       description: '',
     },
+    notes: [],
   }),
   watch: {
     note: {
@@ -71,9 +84,9 @@ export default {
       },
     }).then((res) => res.json())
       .then((result) => {
-        console.log(result);
         if (result.user) {
           this.user = result.user;
+          this.getNotes();
         } else {
           this.logout();
         }
@@ -84,11 +97,21 @@ export default {
       localStorage.removeItem('token');
       this.$router.push('/login');
     },
-    post() {
+    getNotes() {
+      fetch(`${API_URL}api/v1/notes`, {
+        headers: {
+          authorization: `Bearer ${localStorage.token}`,
+        },
+      }).then((res) => res.json())
+        .then((notes) => {
+          this.notes = notes;
+        });
+    },
+    addNotes() {
       // console.log(this.note);
       this.errorMessage = '';
       this.posting = true;
-      fetch(`${API_URL}api/v10/notes`, {
+      fetch(`${API_URL}api/v1/notes`, {
         method: 'POST',
         body: JSON.stringify(this.note),
         headers: {
@@ -107,6 +130,7 @@ export default {
         setTimeout(() => {
           console.log(result);
           this.posting = false;
+          this.getNotes();
           this.note = {
             title: '',
             description: '',
