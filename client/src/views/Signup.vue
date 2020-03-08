@@ -66,7 +66,8 @@ import Joi from 'joi';
 const signupUrl = 'http://localhost:3000/auth/signup';
 
 const schema = Joi.object().keys({
-  username: Joi.string().regex(/(^[a-zA-Z0-9_]*$)/).min(2).max(30)
+  username: Joi.string().trim().regex(/(^[a-zA-Z0-9_]*$)/).min(2)
+    .max(30)
     .required(),
   password: Joi.string().trim().min(6).required(),
   confirmPassword: Joi.string().trim().min(6).required(),
@@ -142,7 +143,7 @@ export default {
 
       this.errorMessage = result.error;
       if (result.error.message.includes('username')) {
-        this.errorMessage = 'Username is invalid.';
+        // this.errorMessage = 'Username is invalid.';
       } else {
         this.errorMessage = 'Password is invalid.';
       }
