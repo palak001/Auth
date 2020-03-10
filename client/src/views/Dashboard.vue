@@ -5,50 +5,60 @@
     <h4 v-if="user">Hello, {{ user.username }}</h4>
     <button @click="logout()" class="btn btn-primary" style="margin:10px 0px">Logout</button>
     <br />
-    <div v-if="posting">
+    <div v-if="searching">
       <img src="../assets/loading.svg" alt="loading gif"
         style = "margin:100px 500px"/>
     </div>
     <div v-if="errorMessage" class="alert alert-danger" role="alert">
         {{ errorMessage }}
     </div>
-    <form @submit.prevent="addNotes" v-if="!posting">
+    <form @submit.prevent="searchBook()" v-if="!searching">
       <div class="form-group">
-        <label for="title">Title</label>
+        <label for="bookSearch">Book Name</label>
         <input
-        v-model="note.title"
+        v-model="book.bookName"
         type="text"
         class="form-control"
-        id="title"
-        placeholder="Enter a descriptive title for your Note"
-        aria-describedby="titleHelp" required>
-        <h5 id="titleHelp" class="form-text text-muted">
-          Enter a descriptive title for your Note(max 100)
-        </h5>
+        id="bookSearch"
+        placeholder="Enter a book name">
       </div>
-      <div class="form-group">
-        <label for="note">Note</label>
-        <textarea
-        v-model="note.description"
-        class="form-control"
-        id="note"
-        rows="3"
-        placeholder="Enter your Note" required>
-        </textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Post</button>
+      <button type="submit" class="btn btn-primary">Search</button>
     </form>
-    <h3 style="margin-top:30px">Notes</h3>
-    <section class="row mt-3">
-      <br />
-      <div class="col-4"
-        v-for="note in this.notes"
-        :key="note._id">
-        <div class="card border-info mb-3"
-          style="max-width: 20rem;">
-          <div class="card-header"><h3>{{note.title}}</h3></div>
-          <div class="card-body">
-            <h5><p class="card-text">{{note.description}}</p></h5>
+    <h3 style="margin-top:30px">Books</h3>
+    <section>
+      <div class="row">
+        <div class="col-6"
+          v-for="book in this.books.items"
+          :key="book.id">
+          <div class="card border-info mb-3" style="max-width: 30rem;">
+            <h3 class="card-header">{{book.volumeInfo.title}}</h3>
+            <p v-if="book.volumeInfo.imageLinks">
+              <img :src="book.volumeInfo.imageLinks.smallThumbnail"
+              style="width:95%; height:250px;" alt="Card image">
+            </p>
+            <p v-else>
+              <img :src="book.volumeInfo.imageLinks"
+              style="width:100%; height:250px;" alt="Card image">
+            </p>
+
+            <div class="card-body">
+              <p class="card-text">{{book.volumeInfo.description}}</p>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <h5 style="display:inline">Author:  </h5> {{book.volumeInfo.authors[0]}}</li>
+              <li class="list-group-item">
+                <h5 style="display:inline">Pages:  </h5> {{book.volumeInfo.pageCount}}</li>
+              <li class="list-group-item">
+                <h5 style="display:inline">BookId:  </h5> {{book.id}}</li>
+            </ul>
+            <div class="card-body">
+              <a :href="book.volumeInfo.previewLink" class="card-link">Preview</a>
+              <!-- <a href="#" class="card-link">Another link</a> -->
+            </div>
+            <!-- <div class="card-footer text-muted">
+              2 days ago
+            </div> -->
           </div>
         </div>
       </div>
@@ -62,12 +72,16 @@ export default {
   data: () => ({
     user: null,
     errorMessage: '',
-    posting: false,
+    searching: false,
     note: {
       title: '',
       description: '',
     },
     notes: [],
+    book: {
+      bookName: '',
+    },
+    books: [],
   }),
   watch: {
     note: {
@@ -107,49 +121,24 @@ export default {
           this.notes = notes;
         });
     },
-    addNotes() {
-      // console.log(this.note);
-      this.errorMessage = '';
-      this.posting = true;
-      fetch(`${API_URL}api/v1/notes`, {
-        method: 'POST',
-        body: JSON.stringify(this.note),
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${localStorage.token}`,
-        },
-      }).then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-
-        return response.json().then((error) => {
-          throw new Error(error.message);
+    searchBook() {
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.book.bookName}`)
+        // .then((books) => {
+        //   console.log(books);
+        // });
+        .then((response) => response.json())
+        .then((books) => {
+          console.log(books);
+          this.books = books;
         });
-      }).then((result) => {
-        setTimeout(() => {
-          console.log(result);
-          this.posting = false;
-          this.getNotes();
-          this.note = {
-            title: '',
-            description: '',
-          };
-        }, 1000);
-      }).catch((error) => {
-        setTimeout(() => {
-          this.posting = false;
-          this.errorMessage = error.message;
-          if (this.errorMessage.includes('title')) {
-            this.errorMessage = 'Title is way too long!';
-          }
-        }, 1000);
-      });
     },
   },
 };
 </script>
 
-<style>
-
+<style scoped>
+  .row {
+   display: flex;
+   flex-wrap: wrap;
+}
 </style>
