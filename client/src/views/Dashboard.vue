@@ -27,26 +27,25 @@
     <h3 style="margin-top:30px">Books</h3>
     <section>
       <div class="row">
-        <div class="col-6"
+        <div class="col-3"
           v-for="book in this.books.items"
           :key="book.id">
           <div class="card border-info mb-3" style="max-width: 30rem;">
             <h3 class="card-header">{{book.volumeInfo.title}}</h3>
             <p v-if="book.volumeInfo.imageLinks">
-              <img :src="book.volumeInfo.imageLinks.smallThumbnail"
-              style="width:95%; height:250px;" alt="Card image">
+              <img :src="book.volumeInfo.imageLinks.smallThumbnail" alt="Card image">
             </p>
             <p v-else>
-              <img :src="book.volumeInfo.imageLinks"
-              style="width:100%; height:250px;" alt="Card image">
+              <img src="../assets/flakes.jpg" alt="Card image">
             </p>
-
-            <div class="card-body">
+            <!--<div class="card-body description">
               <p class="card-text">{{book.volumeInfo.description}}</p>
-            </div>
+            </div> -->
             <ul class="list-group list-group-flush">
-              <li class="list-group-item">
+              <li class="list-group-item" v-if="book.volumeInfo.authors">
                 <h5 style="display:inline">Author:  </h5> {{book.volumeInfo.authors[0]}}</li>
+              <li class="list-group-item" v-else>
+                <h5 style="display:inline">Author:  </h5> -</li>
               <li class="list-group-item">
                 <h5 style="display:inline">Pages:  </h5> {{book.volumeInfo.pageCount}}</li>
               <li class="list-group-item">
@@ -54,7 +53,7 @@
             </ul>
             <div class="card-body">
               <a :href="book.volumeInfo.previewLink" class="card-link">Preview</a>
-              <!-- <a href="#" class="card-link">Another link</a> -->
+              <a href="#" class="card-link" @click="addBook()">Add this Book</a>
             </div>
             <!-- <div class="card-footer text-muted">
               2 days ago
@@ -122,16 +121,23 @@ export default {
         });
     },
     searchBook() {
+      this.searching = true;
       fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.book.bookName}`)
         // .then((books) => {
         //   console.log(books);
         // });
         .then((response) => response.json())
         .then((books) => {
-          console.log(books);
-          this.books = books;
+          setTimeout(() => {
+            this.searching = false;
+            console.log(books);
+            this.books = books;
+          }, 1000);
         });
     },
+    // addBook() {
+    //   fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.book.bookName}`)
+    // }
   },
 };
 </script>
@@ -140,5 +146,25 @@ export default {
   .row {
    display: flex;
    flex-wrap: wrap;
+   width: 100%;
+}
+  .col {
+    flex: 1;
+  }
+  /* .description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } */
+  p img {
+    width: 100%;
+    height: 20vw;
+    object-fit: cover;
+  }
+  .description{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 16px;
+    max-height: 52px;
 }
 </style>
