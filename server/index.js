@@ -7,7 +7,7 @@ const app = express();
 const middleware = require('./auth/middleware');
 
 const auth = require('./auth/index');
-const notes = require('./api/notes');
+const books = require('./api/books');
 
 app.use(morgan('dev'));
 app.use(cors({
@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', auth);
-app.use('/api/v1/notes', middleware.isLoggedIn, notes);
+app.use('/api/v1/books', middleware.isLoggedIn, books);
 
 //error handling functions
 function notFound(req, res, next){
